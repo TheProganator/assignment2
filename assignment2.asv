@@ -1,0 +1,62 @@
+W = 2; %width of region ny
+L = 3; %Length of region nx
+
+BCleft = 0; 
+BCright = 1; %this is Vo
+
+dx = 0.1;
+dy = 0.1;
+nx = L/dx;
+ny = W/dy;
+
+G = zer(20*60,ny*nx);
+F = zeros(nx*ny,1);
+
+for i = 1:nx
+    for j = 1:ny
+        n = j+(i-1)*ny;
+        
+        if i == 1 
+            G(n,n) = BCleft;
+            F(n) = 1;
+        elseif i == L
+            G(n,n) = BCright;
+        elseif j == 1
+          %  nxm = j+(i-2)*ny;
+          %  nxp = j+(i)*ny;
+            nyp = j+1+(i-1)*ny;
+            
+          %  G(n,nxm) = 1;
+           % G(n,nxp) = 1;
+            G(n,nyp) = -1;
+            G(n,n) = 1;
+        elseif j == ny
+         %   nxm = j+(i-2)*ny;
+          %  nxp = j+(i)*ny;
+            nym = j-1+(i-1)*ny;
+            
+     %       G(n,nxm) = 1;
+      %      G(n,nxp) = 1;
+            G(n,nym) = -1;
+            G(n,n) = 1;
+        else
+            nxm = j+(i-2)*ny;
+            nxp = j+(i)*ny;
+            nyp = j+1+(i-1)*ny;
+            nym = j-1+(i-1)*ny;
+            
+            G(n,nxm) = 1/(dx^2);
+            G(n,nxp) = 1/(dx^2);
+            G(n,nym) = 1/(dy^2);
+            G(n,nyp) = 1/(dy^2);
+            G(n,n) = -2*(1/dx^2 + 1/dy^2);
+        end
+    end
+end
+
+V = G\F;
+V = reshape(V,[],ny)';
+
+surf(linspace(0,L,nx),linspace(0,W,ny),V);
+title(sprintf('Part a'));
+
